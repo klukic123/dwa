@@ -33,10 +33,14 @@ class Ocjena(db.Model):
 class Bolnica(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     naziv = db.Column(db.String(140))
+    def __repr__(self):
+        return '{}'.format(self.naziv)    
 
 class Specijalizacija(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     naziv = db.Column(db.String(140))
+    def __repr__(self):
+        return '{}'.format(self.naziv)    
 
 class Doktor(db.Model):
     id = db.Column(db.Integer, primary_key=True)

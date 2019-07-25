@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField,SelectField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
-from app.models import User
+from app.models import User,Specijalizacija,Bolnica
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -26,3 +27,10 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Please use a different email address.')
+
+class Dodaj_doktoraForm(FlaskForm):
+    ime = StringField('ime', validators=[DataRequired()])
+    prezime = StringField('prezime', validators=[DataRequired()])
+    specijalizacija_id = QuerySelectField(query_factory=lambda: Specijalizacija.query)
+    bolnica_id =  QuerySelectField(query_factory=lambda: Bolnica.query)
+    submit = SubmitField('Dodaj doktora')

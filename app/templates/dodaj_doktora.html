@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h1>Dodaj doktora</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.ime.label }}<br>
+            {{ form.ime(size=32) }}<br>
+            {% for error in form.ime.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.prezime.label }}<br>
+            {{ form.prezime(size=64) }}<br>
+            {% for error in form.prezime.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.specijalizacija_id.label }}<br>
+            {{ form.specijalizacija_id(size=1) }}<br>
+            {% for error in form.specijalizacija_id.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.bolnica_id.label }}<br>
+            {{ form.bolnica_id(size=1) }}<br>
+            {% for error in form.bolnica_id.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
