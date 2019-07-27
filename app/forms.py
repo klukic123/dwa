@@ -31,6 +31,10 @@ class RegistrationForm(FlaskForm):
 class Dodaj_doktoraForm(FlaskForm):
     ime = StringField('ime', validators=[DataRequired()])
     prezime = StringField('prezime', validators=[DataRequired()])
-    specijalizacija_id = QuerySelectField(query_factory=lambda: Specijalizacija.query)
-    bolnica_id =  QuerySelectField(query_factory=lambda: Bolnica.query)
+    specijalizacija_id = SelectField('specijalizacija',choices=[])
+    bolnica_id = SelectField('bolnica',choices=[])
     submit = SubmitField('Dodaj doktora')
+
+class Search(FlaskForm):
+    search = StringField('Pretraga')
+    submit = SubmitField('Pretraži')

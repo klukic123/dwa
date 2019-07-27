@@ -1,6 +1,6 @@
 from flask import render_template
 from app import app
-from app.forms import RegistrationForm, LoginForm, Dodaj_doktoraForm
+from app.forms import RegistrationForm, LoginForm, Dodaj_doktoraForm, Search
 from flask import render_template, flash, redirect
 from flask_login import current_user, login_user
 from app.models import User,Doktor,Specijalizacija,Bolnica
@@ -56,6 +56,8 @@ def register():
 @app.route('/dodaj_doktora', methods=['GET', 'POST'])
 def dodaj_doktora():
     form = Dodaj_doktoraForm()
+    form.specijalizacija_id.choices=[(specijalizacija.id,specijalizacija.naziv) for specijalizacija in Specijalizacija.query.all()]
+    form.bolnica_id.choices=[(bolnica.id,bolnica.naziv) for bolnica in Bolnica.query.all()]
     if form.validate_on_submit():
         doktor = Doktor(ime=form.ime.data, 
                         prezime=form.prezime.data,
@@ -66,3 +68,14 @@ def dodaj_doktora():
         flash('dodali ste doktora')
         return redirect(url_for('index'))
     return render_template('dodaj_doktora.html', title='dodaj_doktora', form=form)
+
+@app.route('/pretraga', methods=['GET', 'POST'])
+def pretraga():
+    form = Search()
+    if form.validate_on_submit():
+        search = form.search.data
+        doktor = Doktor.query.filter(Doktor.ime.like("%" + search + "%")).all()
+        return render_template("pretraga.html", form=form, doktor=doktor)
+    #<--doktor = Doktor.query.join(Bolnica, Doktor.bolnica_id==Bolnica.id).join(Specijalizacija, Doktor.specijalizacija_id==Specijalizacija.id).add_columns(Doktor.ime,Doktor.prezime,Specijalizacija.naziv,Bolnica.naziv)
+    doktor = db.engine.execute(text("select doktor.ime,doktor.prezime,specijalizacija.naziv as specijalizacija,bolnica.naziv as bolnica,avg(ocjena) as prosjek from doktor join specijalizacija on doktor.specijalizacija_id=specijalizacija.id join bolnica on bolnica.id=doktor.bolnica_id join ocjena on ocjena.doktor_id=doktor.id group by doktor.id").execution_options(autocommit=True))
+    return render_template("pretraga.html", form=form, doktor=doktor)

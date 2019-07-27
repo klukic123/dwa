@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block content %}
+        <form action="" method="post" >
+            {{ form.hidden_tag() }}
+             <p>
+                {{ form.search.label }}<br>
+                {{ form.search(size=32) }}<br>
+                {% for error in form.search.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>{{ form.submit() }}</p>
+        </form>
+          
+	{% for doktori in doktor %}
+    Ime: {{doktori.ime}}
+    Prezime: {{doktori.prezime}}
+    Bolnica: {{doktori.bolnica}}
+    Specijalizacija: {{doktori.specijalizacija}}
+    Prosjek: {{doktori.prosjek}}
+    <br> 
+        {% endfor %}
+{% endblock %}
