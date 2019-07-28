@@ -19,6 +19,7 @@
     Bolnica: {{doktori.bolnica}}
     Specijalizacija: {{doktori.specijalizacija}}
     Prosjek: {{doktori.prosjek}}
+    <a href="{{ url_for('doktor', id=doktori.id) }}">Ocijeni</a>
     <br> 
         {% endfor %}
 {% endblock %}

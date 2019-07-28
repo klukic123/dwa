@@ -1,9 +1,9 @@
 from flask import render_template
 from app import app
-from app.forms import RegistrationForm, LoginForm, Dodaj_doktoraForm, Search
+from app.forms import RegistrationForm, LoginForm, Dodaj_doktoraForm, Search,Ocjeni_doktoraForm
 from flask import render_template, flash, redirect
 from flask_login import current_user, login_user
-from app.models import User,Doktor,Specijalizacija,Bolnica
+from app.models import User,Doktor,Specijalizacija,Bolnica,Ocjena
 from flask_login import logout_user
 from flask_login import login_required
 from flask import request,url_for
@@ -74,8 +74,23 @@ def pretraga():
     form = Search()
     if form.validate_on_submit():
         search = form.search.data
-        doktor = Doktor.query.filter(Doktor.ime.like("%" + search + "%")).all()
+        sql = text('select doktor.id,doktor.ime,doktor.prezime,specijalizacija.naziv as specijalizacija,bolnica.naziv as bolnica,avg(ocjena) as prosjek from doktor join specijalizacija on doktor.specijalizacija_id=specijalizacija.id join bolnica on bolnica.id=doktor.bolnica_id  left join ocjena on ocjena.doktor_id=doktor.id WHERE doktor.ime like "{}" group by doktor.id;'.format(search))
+        doktor = db.engine.execute(sql)
+        #<--doktor = Doktor.query.filter(Doktor.ime.like("%" + search + "%")).all()
         return render_template("pretraga.html", form=form, doktor=doktor)
     #<--doktor = Doktor.query.join(Bolnica, Doktor.bolnica_id==Bolnica.id).join(Specijalizacija, Doktor.specijalizacija_id==Specijalizacija.id).add_columns(Doktor.ime,Doktor.prezime,Specijalizacija.naziv,Bolnica.naziv)
-    doktor = db.engine.execute(text("select doktor.ime,doktor.prezime,specijalizacija.naziv as specijalizacija,bolnica.naziv as bolnica,avg(ocjena) as prosjek from doktor join specijalizacija on doktor.specijalizacija_id=specijalizacija.id join bolnica on bolnica.id=doktor.bolnica_id join ocjena on ocjena.doktor_id=doktor.id group by doktor.id").execution_options(autocommit=True))
+    doktor = db.engine.execute(text("select doktor.id,doktor.ime,doktor.prezime,specijalizacija.naziv as specijalizacija,bolnica.naziv as bolnica,avg(ocjena) as prosjek from doktor join specijalizacija on doktor.specijalizacija_id=specijalizacija.id join bolnica on bolnica.id=doktor.bolnica_id left join ocjena on ocjena.doktor_id=doktor.id group by doktor.id").execution_options(autocommit=True))
     return render_template("pretraga.html", form=form, doktor=doktor)
+
+@app.route('/pretraga/<id>', methods=['GET', 'POST'])
+def doktor(id):
+    form= Ocjeni_doktoraForm()
+    sql = text('select doktor.id,doktor.ime,doktor.prezime,specijalizacija.naziv as specijalizacija,bolnica.naziv as bolnica,avg(ocjena) as prosjek from doktor join specijalizacija on doktor.specijalizacija_id=specijalizacija.id join bolnica on bolnica.id=doktor.bolnica_id left join ocjena on ocjena.doktor_id=doktor.id WHERE doktor.id={};'.format(id))
+    doktor = db.engine.execute(sql)
+    if form.validate_on_submit():
+        ocjena = Ocjena(ocjena=form.ocjena.data,user_id=current_user.id,doktor_id=id)
+        db.session.add(ocjena)
+        db.session.commit()
+        flash('ocjenili  ste doktora')
+        return redirect(url_for('index'))
+    return render_template('doktor.html', title='Doktor', doktor=doktor,form=form)
