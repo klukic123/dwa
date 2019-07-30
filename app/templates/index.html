@@ -1,5 +1,11 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <h1>Hi, {{ current_user.username }}!</h1>
+<div class="jumbotron m-3">
+        <h1 class="display-3 text-center">Dobro došli!</h1>
+        <hr class="my-4">
+        <p class="lead text-center">
+          <a class="btn btn-primary btn-lg" href="{{ url_for('pretraga') }}" role="button">Pronađi doktora</a>
+        </p>
+      </div>
 {% endblock %}
