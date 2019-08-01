@@ -23,6 +23,13 @@
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
+        <p>
+          {{ form.opis.label }}<br>
+          {{ form.opis(size=1) }}<br>
+          {% for error in form.opis.errors %}
+          <span style="color: red;">[{{ error }}]</span>
+          {% endfor %}
+      </p>
         <p>{{ form.submit() }}</p>
     </form> 
 {% endblock %}

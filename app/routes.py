@@ -86,16 +86,13 @@ def pretraga():
 @app.route('/pretraga/<id>', methods=['GET', 'POST'])
 def doktor(id):
     form= Ocjeni_doktoraForm()
-    sql = text('select doktor.id,doktor.ime,doktor.prezime,specijalizacija.naziv as specijalizacija,bolnica.naziv as bolnica,avg(ocjena) as prosjek from doktor join specijalizacija on doktor.specijalizacija_id=specijalizacija.id join bolnica on bolnica.id=doktor.bolnica_id left join ocjena on ocjena.doktor_id=doktor.id WHERE doktor.id={};'.format(id))
+    sql = text('select doktor.id,doktor.ime,doktor.prezime,specijalizacija.naziv as specijalizacija,bolnica.naziv as bolnica,avg(ocjena) as prosjek,opis from doktor join specijalizacija on doktor.specijalizacija_id=specijalizacija.id join bolnica on bolnica.id=doktor.bolnica_id left join ocjena on ocjena.doktor_id=doktor.id WHERE doktor.id={};'.format(id))
     doktor = db.engine.execute(sql)
     granica = Ocjena.query.filter_by(doktor_id=id).first()
     if form.validate_on_submit():
-        if granica.user_id != current_user.id:
-            ocjena = Ocjena(ocjena=form.ocjena.data,user_id=current_user.id,doktor_id=id)
-            db.session.add(ocjena)
-            db.session.commit()
-            flash('ocjenili  ste doktora')
-        else:
-            return '<html>nemoj srat</html>'
+        ocjena = Ocjena(ocjena=form.ocjena.data,user_id=current_user.id,doktor_id=id,opis=form.opis.data)
+        db.session.add(ocjena)
+        db.session.commit()
+        flash('ocjenili  ste doktora')
         return redirect(url_for('index'))
     return render_template('doktor.html', title='Doktor', doktor=doktor,form=form)

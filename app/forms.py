@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField,SelectField,IntegerField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField,SelectField,IntegerField,TextAreaField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, NumberRange
 from app.models import User,Specijalizacija,Bolnica
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
@@ -41,4 +41,5 @@ class Search(FlaskForm):
 
 class Ocjeni_doktoraForm(FlaskForm):
     ocjena = IntegerField('ocjena', validators=[DataRequired(),NumberRange(min=1, max=5, message='Unesi ocjenu(1-5)')])
+    opis = TextAreaField('opis', validators=[DataRequired()])
     submit = SubmitField('Dodaj ocjenu')

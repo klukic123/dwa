@@ -26,6 +26,7 @@ def load_user(id):
 class Ocjena(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ocjena = db.Column(db.Integer)
+    opis = db.Column(db.String(500))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     doktor_id = db.Column(db.Integer, db.ForeignKey('doktor.id'))
 
