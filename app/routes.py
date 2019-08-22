@@ -25,7 +25,7 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
+            flash('Krivi username ili lozinka')
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
@@ -49,7 +49,7 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Congratulations, you are now a registered user!')
+        flash('Registrirali ste se!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
@@ -66,7 +66,7 @@ def dodaj_doktora():
                         bolnica_id=form.bolnica_id.data)
         db.session.add(doktor)
         db.session.commit()
-        flash('dodali ste doktora')
+        flash('Dodali ste doktora!')
         return redirect(url_for('index'))
     return render_template('dodaj_doktora.html', title='dodaj_doktora', form=form)
 
@@ -75,11 +75,9 @@ def pretraga():
     form = Search()
     if form.validate_on_submit():
         search = form.search.data
-        sql = text('select doktor.id,doktor.ime,doktor.prezime,specijalizacija.naziv as specijalizacija,bolnica.naziv as bolnica,avg(ocjena) as prosjek from doktor join specijalizacija on doktor.specijalizacija_id=specijalizacija.id join bolnica on bolnica.id=doktor.bolnica_id  left join ocjena on ocjena.doktor_id=doktor.id WHERE doktor.ime like "{}" group by doktor.id;'.format(search))
+        sql = text('select doktor.id,doktor.ime,doktor.prezime,specijalizacija.naziv as specijalizacija,bolnica.naziv as bolnica,avg(ocjena) as prosjek from doktor join specijalizacija on doktor.specijalizacija_id=specijalizacija.id join bolnica on bolnica.id=doktor.bolnica_id  left join ocjena on ocjena.doktor_id=doktor.id WHERE doktor.ime like "{}%" group by doktor.id;'.format(search))
         doktor = db.engine.execute(sql)
-        #<--doktor = Doktor.query.filter(Doktor.ime.like("%" + search + "%")).all()
         return render_template("pretraga.html", form=form, doktor=doktor)
-    #<--doktor = Doktor.query.join(Bolnica, Doktor.bolnica_id==Bolnica.id).join(Specijalizacija, Doktor.specijalizacija_id==Specijalizacija.id).add_columns(Doktor.ime,Doktor.prezime,Specijalizacija.naziv,Bolnica.naziv)
     doktor = db.engine.execute(text("select doktor.id,doktor.ime,doktor.prezime,specijalizacija.naziv as specijalizacija,bolnica.naziv as bolnica,avg(ocjena) as prosjek from doktor join specijalizacija on doktor.specijalizacija_id=specijalizacija.id join bolnica on bolnica.id=doktor.bolnica_id left join ocjena on ocjena.doktor_id=doktor.id group by doktor.id").execution_options(autocommit=True))
     return render_template("pretraga.html", form=form, doktor=doktor)
 
@@ -89,10 +87,12 @@ def doktor(id):
     sql = text('select doktor.id,doktor.ime,doktor.prezime,specijalizacija.naziv as specijalizacija,bolnica.naziv as bolnica,avg(ocjena) as prosjek,opis from doktor join specijalizacija on doktor.specijalizacija_id=specijalizacija.id join bolnica on bolnica.id=doktor.bolnica_id left join ocjena on ocjena.doktor_id=doktor.id WHERE doktor.id={};'.format(id))
     doktor = db.engine.execute(sql)
     granica = Ocjena.query.filter_by(doktor_id=id).first()
+    sql2 = text('select user.username,ocjena.ocjena,ocjena.opis from user join ocjena on user.id=ocjena.user_id WHERE ocjena.doktor_id={};'.format(id))
+    sveocjene=db.engine.execute(sql2)
     if form.validate_on_submit():
         ocjena = Ocjena(ocjena=form.ocjena.data,user_id=current_user.id,doktor_id=id,opis=form.opis.data)
         db.session.add(ocjena)
         db.session.commit()
-        flash('ocjenili  ste doktora')
+        flash('Ocjenili  ste doktora!')
         return redirect(url_for('index'))
-    return render_template('doktor.html', title='Doktor', doktor=doktor,form=form)
+    return render_template('doktor.html', title='Doktor', doktor=doktor,form=form,sveocjene=sveocjene)

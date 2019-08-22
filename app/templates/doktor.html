@@ -3,8 +3,8 @@
 {% block content %}
 
     {% for doktori in doktor %}
-    <div class="card mx-auto " style="width: 500px;">
-            <div class="card-body">
+    <div class="quote-box mx-auto  " style="width: 500px;">
+            <div class="card-body bg-light">
               <h5 class="card-title">dr.{{doktori.ime}} {{doktori.prezime}}</h5>
               <h6 class="card-subtitle mb-2 text-muted float-left">Bolnica: {{doktori.bolnica}}</h6><br>
               <h6 class="card-subtitle mb-2 text-muted float-left">Specijalizacija: {{doktori.specijalizacija}}</h6><br>
@@ -13,18 +13,19 @@
           </div> 
           <br>
     {% endfor %}
-    <h1>Ocjeni doktora</h1>
+    <div class="quote-box mx-auto " style="width: 500px;">
+    <h4>Ocijeni doktora</h4>
     <form action="" method="post">
         {{ form.hidden_tag() }}
         <p>
-            {{ form.ocjena.label }}<br>
+            {{ form.ocjena.label }}:<br>
             {{ form.ocjena(size=1) }}<br>
             {% for error in form.ocjena.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
         <p>
-          {{ form.opis.label }}<br>
+          {{ form.opis.label }}:<br>
           {{ form.opis(size=1) }}<br>
           {% for error in form.opis.errors %}
           <span style="color: red;">[{{ error }}]</span>
@@ -32,4 +33,30 @@
       </p>
         <p>{{ form.submit() }}</p>
     </form> 
+  </div>
+    {% for ocjene in sveocjene %}
+          
+          <div class="container ">
+              <br><br>
+              <blockquote class="quote-box m-auto" style="width: 500px">
+                <p class="quotation-mark">
+                  “
+                </p>
+                <p class="quote-text">
+                    {{ocjene.opis}} 
+                </p>
+                <hr>
+                <div class="blog-post-actions">
+                  <p class="blog-post-bottom pull-left">
+                      Ocijenio: {{ocjene.username}}
+                  </p>
+                  <p class="blog-post-bottom pull-right">
+                    <span class="badge quote-badge">Ocjena: {{ocjene.ocjena}}</span> 
+                  </p>
+                </div>
+              </blockquote>
+              <br><br>
+          </div>
+          
+    {% endfor %}
 {% endblock %}
