@@ -6,3 +6,6 @@
 #pip install flask-login
 
 skinuti baza.sql bazu
+useri za logiranje:
+klukic lozinka:123
+pperic lozinka:123
