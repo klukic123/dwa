@@ -28,18 +28,6 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different email address.')
 
-class Dodaj_doktoraForm(FlaskForm):
-    ime = StringField('Ime', validators=[DataRequired()])
-    prezime = StringField('Prezime', validators=[DataRequired()])
-    specijalizacija_id = SelectField('specijalizacija',choices=[])
-    specijalizacija_id = SelectField(coerce=int)
-    bolnica_id = SelectField('bolnica',choices=[])
-    bolnica_id = SelectField(coerce=int)
-    submit = SubmitField('Dodaj doktora')
-
-class Search(FlaskForm):
-    search = StringField('Pretraga', validators=[DataRequired()])
-    submit = SubmitField('Pretraži')
 
 class Ocjeni_doktoraForm(FlaskForm):
     ocjena = IntegerField('Ocjena (1-5)', validators=[DataRequired(),NumberRange(min=1, max=5, message='Unesi ocjenu(1-5)')])

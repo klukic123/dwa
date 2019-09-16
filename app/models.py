@@ -23,13 +23,6 @@ class User(UserMixin,db.Model):
 def load_user(id):
     return User.query.get(int(id))
 
-class Ocjena(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    ocjena = db.Column(db.Integer)
-    opis = db.Column(db.String(500))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    doktor_id = db.Column(db.Integer, db.ForeignKey('doktor.id'))
-
 
 class Bolnica(db.Model):
     id = db.Column(db.Integer, primary_key=True)

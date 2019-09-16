@@ -1,9 +1,9 @@
 from flask import render_template
 from app import app
-from app.forms import RegistrationForm, LoginForm, Dodaj_doktoraForm, Search,Ocjeni_doktoraForm
+from app.forms import RegistrationForm, LoginForm,Ocjeni_doktoraForm
 from flask import render_template, flash, redirect
 from flask_login import current_user, login_user
-from app.models import User,Doktor,Specijalizacija,Bolnica,Ocjena
+from app.models import User,Doktor,Specijalizacija,Bolnica
 from flask_login import logout_user
 from flask_login import login_required
 from flask import request,url_for
@@ -53,46 +53,8 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
-@app.route('/dodaj_doktora', methods=['GET', 'POST'])
-@login_required
-def dodaj_doktora():
-    form = Dodaj_doktoraForm()
-    form.specijalizacija_id.choices=[(specijalizacija.id,specijalizacija.naziv) for specijalizacija in Specijalizacija.query.all()]
-    form.bolnica_id.choices=[(bolnica.id,bolnica.naziv) for bolnica in Bolnica.query.all()]
-    if form.validate_on_submit():
-        doktor = Doktor(ime=form.ime.data, 
-                        prezime=form.prezime.data,
-                        specijalizacija_id=form.specijalizacija_id.data,
-                        bolnica_id=form.bolnica_id.data)
-        db.session.add(doktor)
-        db.session.commit()
-        flash('Dodali ste doktora!')
-        return redirect(url_for('index'))
-    return render_template('dodaj_doktora.html', title='dodaj_doktora', form=form)
 
-@app.route('/pretraga', methods=['GET', 'POST'])
-def pretraga():
-    form = Search()
-    if form.validate_on_submit():
-        search = form.search.data
-        sql = text('select doktor.id,doktor.ime,doktor.prezime,specijalizacija.naziv as specijalizacija,bolnica.naziv as bolnica,avg(ocjena) as prosjek from doktor join specijalizacija on doktor.specijalizacija_id=specijalizacija.id join bolnica on bolnica.id=doktor.bolnica_id  left join ocjena on ocjena.doktor_id=doktor.id WHERE doktor.ime like "{}%" group by doktor.id;'.format(search))
-        doktor = db.engine.execute(sql)
-        return render_template("pretraga.html", form=form, doktor=doktor)
-    doktor = db.engine.execute(text("select doktor.id,doktor.ime,doktor.prezime,specijalizacija.naziv as specijalizacija,bolnica.naziv as bolnica,avg(ocjena) as prosjek from doktor join specijalizacija on doktor.specijalizacija_id=specijalizacija.id join bolnica on bolnica.id=doktor.bolnica_id left join ocjena on ocjena.doktor_id=doktor.id group by doktor.id").execution_options(autocommit=True))
-    return render_template("pretraga.html", form=form, doktor=doktor)
-
-@app.route('/pretraga/<id>', methods=['GET', 'POST'])
-def doktor(id):
-    form= Ocjeni_doktoraForm()
-    sql = text('select doktor.id,doktor.ime,doktor.prezime,specijalizacija.naziv as specijalizacija,bolnica.naziv as bolnica,avg(ocjena) as prosjek,opis from doktor join specijalizacija on doktor.specijalizacija_id=specijalizacija.id join bolnica on bolnica.id=doktor.bolnica_id left join ocjena on ocjena.doktor_id=doktor.id WHERE doktor.id={};'.format(id))
-    doktor = db.engine.execute(sql)
-    granica = Ocjena.query.filter_by(doktor_id=id).first()
-    sql2 = text('select user.username,ocjena.ocjena,ocjena.opis from user join ocjena on user.id=ocjena.user_id WHERE ocjena.doktor_id={};'.format(id))
-    sveocjene=db.engine.execute(sql2)
-    if form.validate_on_submit():
-        ocjena = Ocjena(ocjena=form.ocjena.data,user_id=current_user.id,doktor_id=id,opis=form.opis.data)
-        db.session.add(ocjena)
-        db.session.commit()
-        flash('Ocjenili  ste doktora!')
-        return redirect(url_for('index'))
-    return render_template('doktor.html', title='Doktor', doktor=doktor,form=form,sveocjene=sveocjene)
+@app.route('/doktori')
+def doktori():
+    doktor = db.engine.execute(text("select doktor.id,doktor.ime,doktor.prezime,specijalizacija.naziv as specijalizacija,bolnica.naziv as bolnica from doktor join specijalizacija on doktor.specijalizacija_id=specijalizacija.id join bolnica on bolnica.id=doktor.bolnica_id").execution_options(autocommit=True))
+    return render_template("doktori.html", doktor=doktor)
